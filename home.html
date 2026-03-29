@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rakkas&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - أسس</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="home.css">
+</head>
+<body>
+
+    <div class="dashboard-wrapper">
+        <header class="main-header">
+            <div class="user-profile">
+                <div class="user-avatar" id="userLetter">?</div>
+                <div class="user-details">
+                    <span class="welcome-msg">مرحباً بك،</span>
+                    <h2 class="user-name" id="userName">لاعب</h2>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <button class="quick-nav-btn" onclick="location.href='leaderboard.html'" title="المراكز">
+                    <span class="material-icons">military_tech</span>
+                </button>
+                <button class="logout-btn" onclick="logout()">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="quick-access">
+            <div class="action-card primary" onclick="location.href='menu-exam.html'">
+                <div class="card-icon-wrapper">
+                    <span class="material-icons">videogame_asset</span>
+                </div>
+                <h3>ساحة الاختبارات</h3>
+                <p>ادخل التحدي الآن وحطم الأرقام</p>
+            </div>
+
+            <div class="action-card reward" onclick="location.href='leaderboard.html'">
+                <div class="card-icon-wrapper">
+                    <span class="material-icons">emoji_events</span>
+                </div>
+                <h3> المراكز</h3>
+                <p>استعرض ترتيبك العالمي وجوائزك</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const activeUser = localStorage.getItem('activeUser') || "لاعب";
+            document.getElementById('userName').innerText = activeUser;
+            document.getElementById('userLetter').innerText = activeUser.charAt(0).toUpperCase();
+        };
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'auth.html';
+        }
+    </script>
+</body>
+</html>

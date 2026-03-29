@@ -1,0 +1,126 @@
+:root {
+    --bg-dark: #080810;
+    --card-bg: #121225;
+    --accent-red: #f31a1a;
+    --accent-gold: #ffc107;
+    --text-white: #ffffff;
+    --text-gray: #8b8b9a;
+}
+
+body {
+    background-color: var(--bg-dark);
+    font-family: 'Cairo', sans-serif;
+    color: var(--text-white);
+    margin: 0;
+    direction: rtl;
+}
+
+.dashboard-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* الهيدر */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 15px 25px;
+    border-radius: 20px;
+    border: 1px solid #1a1a30;
+    margin-bottom: 40px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-avatar {
+    width: 55px;
+    height: 55px;
+    background: linear-gradient(135deg, var(--accent-red), #900);
+    border-radius: 15px; /* شكل مربع منحني حديث */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.quick-nav-btn, .logout-btn {
+    background: #1d1d35;
+    border: none;
+    color: var(--text-gray);
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.quick-nav-btn:hover { color: var(--accent-gold); background: #252545; }
+.logout-btn:hover { color: var(--accent-red); background: #252545; }
+
+/* البطاقات */
+.quick-access {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.action-card {
+    background: var(--card-bg);
+    padding: 35px 20px;
+    border-radius: 25px;
+    border: 1px solid #1a1a30;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.4s;
+}
+
+.card-icon-wrapper {
+    margin-bottom: 20px;
+}
+
+.action-card .material-icons {
+    font-size: 4rem;
+}
+
+/* بطاقة الاختبارات - أحمر */
+.action-card.primary .material-icons { color: var(--accent-red); }
+.action-card.primary:hover { border-color: var(--accent-red); transform: translateY(-5px); }
+
+/* بطاقة المراكز - ذهبي */
+.action-card.reward .material-icons { 
+    color: var(--accent-gold); 
+    text-shadow: 0 0 20px rgba(255, 193, 7, 0.3);
+}
+.action-card.reward:hover { border-color: var(--accent-gold); transform: translateY(-5px); }
+
+.action-card h3 { margin: 10px 0; font-size: 1.5rem; }
+.action-card p { color: var(--text-gray); font-size: 0.9rem; }
+
+@media (max-width: 600px) {
+    .quick-access { grid-template-columns: 1fr; }
+}
+
+
+
+
+
+
+
+
+

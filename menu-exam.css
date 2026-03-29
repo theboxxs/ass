@@ -1,0 +1,161 @@
+/* إعدادات المتغيرات والألوان */
+:root {
+    --bg-color: #0c0c14; /* خلفية مظلمة جداً */
+    --card-bg: #16162a; /* خلفية البطاقة المظلمة */
+    --secondary-color: #ffffff; /* أبيض */
+    --text-muted: #a0a0b0; /* رمادي فاتح للنصوص الثانوية */
+    --border-color: #25253e; /* لون الإطار الافتراضي */
+    
+    /* ألوان التمييز لكل تحدي */
+    --addition-color: #f31a1a; /* أحمر زاهي */
+    --subtraction-color: #f31a1a; /* أزرق */
+    --multiplication-color: #f31a1a; /* أخضر */
+    --division-color: #f31a1a; /* ذهبي (للمغلق) */
+}
+
+/* تنسيق الجسم العام */
+body {
+    background-color: var(--bg-color);
+    font-family: 'Cairo', sans-serif;
+    color: var(--secondary-color);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 30px 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    letter-spacing: -2px;
+}
+
+header p {
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* حاوية البطاقات */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* تنسيق البطاقة الواحدة */
+.game-card {
+    background: var(--card-bg);
+    border-radius: 30px;
+    padding: 50px 30px;
+    text-align: center;
+    border: 2px solid var(--border-color);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* حركة حيوية */
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+/* تأثير التمرير (Hover) العام */
+.game-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+}
+
+/* أيقونات البطاقة */
+.icon-box {
+    font-size: 5rem;
+    margin-bottom: 25px;
+    display: block;
+}
+
+.game-card h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.game-card p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 35px;
+}
+
+/* زر اللعب */
+.play-btn {
+    color: white;
+    padding: 12px 35px;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    display: inline-block;
+    transition: 0.3s ease;
+}
+
+/* ========================================= */
+/* تنسيق خاص لكل بطاقة */
+/* ========================================= */
+
+/* 1. الجمع */
+.game-card.addition:hover { border-color: var(--addition-color); }
+.game-card.addition .play-btn { background-color: var(--addition-color); }
+.game-card.addition:hover .play-btn { background-color: white; color: var(--addition-color); }
+
+/* 2. الطرح */
+.game-card.subtraction:hover { border-color: var(--subtraction-color); }
+.game-card.subtraction .play-btn { background-color: var(--subtraction-color); }
+.game-card.subtraction:hover .play-btn { background-color: white; color: var(--subtraction-color); }
+
+/* 3. الضرب (الأخضر) */
+.game-card.multiplication { border-color: rgba(40, 167, 69, 0.1); }
+.game-card.multiplication:hover { border-color: var(--multiplication-color); }
+.game-card.multiplication .play-btn { background-color: var(--multiplication-color); }
+.game-card.multiplication .multiplier { color: var(--multiplication-color); }
+.game-card.multiplication:hover .play-btn { background-color: white; color: var(--multiplication-color); }
+
+/* 4. القسمة المغلق (الذهبي والرمادي) */
+
+.game-card.division { border-color: rgba(40, 167, 69, 0.1); }
+.game-card.division:hover { border-color: var(--multiplication-color); }
+.game-card.division .play-btn { background-color: var(--multiplication-color); }
+.game-card.division .multiplier { color: var(--multiplication-color); }
+.game-card.division:hover .play-btn { background-color: white; color: var(--multiplication-color); }
+
+/* إلغاء تأثير الـ Hover للمغلق */
+
+/* ========================================= */
+/* التذييل والروابط */
+/* ========================================= */
+footer {
+    margin-top: 70px;
+    margin-bottom: 20px;
+}
+
+.back-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 700;
+    transition: 0.3s;
+    border: 1px solid var(--border-color);
+    padding: 12px 30px;
+    border-radius: 12px;
+}
+
+.back-link:hover {
+    color: white;
+    border-color: white;
+}

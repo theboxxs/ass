@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أسس - الدخول العالمي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="auth.css">
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <h2 id="authTitle">تسجيل الدخول</h2>
+            <p id="authSubTitle">مرحباً بك مجدداً في منصة أسس</p>
+
+            <div class="input-group">
+                <input type="text" id="username" placeholder="اسم المستخدم" required>
+            </div>
+            
+            <div class="input-group">
+                <input type="password" id="password" placeholder="كلمة المرور" required>
+            </div>
+
+            <button onclick="handleAuth()" id="authBtn">دخول</button>
+            
+            <div class="toggle-box">
+                <span id="toggleText">ليس لديك حساب؟</span>
+                <a href="javascript:void(0)" onclick="toggleAuth()" id="toggleBtn">إنشاء حساب جديد</a>
+            </div>
+            
+            <p id="errorMsg" class="error-msg"></p>
+        </div>
+    </div>
+
+    <script type="module" src="auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أُسُس - اختبار الجمع</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="quiz-plus.css">
+</head>
+<body>
+
+    <button class="exit-btn" onclick="location.href='menu-Exam.html'">إلغاء الاختبار ×</button>
+
+    <div class="main-container">
+        <header class="game-header">
+            <h1 class="logo-text">أُسُس</h1>
+            <div class="game-info">
+                <div class="info-card">السؤال: <span id="triesCount">0</span>/10</div>
+                <div class="info-card">النقاط: <span id="scoreCount">0</span></div>
+            </div>
+        </header>
+
+        <main class="quiz-card">
+            <div id="startSection">
+                <p class="desc">لديك 10 أسئلة، السرعة هي مفتاح تصدرك القائمة!</p>
+                <button class="action-btn primary" onclick="startQuiz()">ابدأ التحدي</button>
+            </div>
+
+            <div id="questionSection" style="display: none;">
+                <div class="math-box" id="equationText">0 + 0 = ?</div>
+                <input type="number" id="answerInput" class="main-input" placeholder="؟" autocomplete="off">
+                <p class="hint">اضغط Enter للتأكيد</p>
+            </div>
+
+            <div id="resultSection" style="display: none;">
+                <h2 class="finish-title">انتهى الاختبار</h2>
+                <div class="score-display" id="finalResult">0%</div>
+                <div class="btn-group">
+                    <button class="action-btn primary" onclick="location.reload()">إعادة المحاولة</button>
+                    <button class="action-btn outline" onclick="location.href='games-menu.html'">قائمة الاختبارات</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div id="questionSection" class="quiz-section" style="display: none;">
+    <div class="math-box" id="equationText">0 + 0 = ?</div>
+    
+    <div class="input-container">
+        <input type="number" id="answerInput" class="main-input" placeholder="؟" autocomplete="off" inputmode="numeric">
+        <button class="confirm-btn" onclick="checkAnswer()">
+            <span class="icon">➔</span>
+        </button>
+    </div>
+    
+    <p class="hint">اضغط Enter أو السهم للتأكيد</p>
+</div>
+
+    <script type="module" src="quiz-m.js"></script>
+</body>
+</html>
