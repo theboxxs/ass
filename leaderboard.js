@@ -1,5 +1,5 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getDatabase, ref, query, orderByChild, limitToLast, get } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, query, orderByChild, limitToLast, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAj8bNAd5axoXs9EnvGso7kBF1S9dgUEqM",
@@ -14,74 +14,55 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// دالة جلب البيانات
 async function loadData(mode) {
     const tbody = document.getElementById("leaderboardBody");
-    tbody.innerHTML = "<tr><td colspan='3'>جاري التحميل...</td></tr>";
+    tbody.innerHTML = "<tr><td colspan='3' style='color:#8b8b9a'>جاري تحميل البيانات...</td></tr>";
 
-    const scoresRef = query(ref(db, 'leaderboard/' + mode), orderByChild("score"), limitToLast(10));
-    const snapshot = await get(scoresRef);
-    tbody.innerHTML = "";
+    try {
+        const scoresRef = query(ref(db, 'leaderboard/' + mode), orderByChild("score"), limitToLast(10));
+        const snapshot = await get(scoresRef);
+        
+        tbody.innerHTML = "";
 
-    if (snapshot.exists()) {
-        let data = [];
-        snapshot.forEach(c => data.push(c.val()));
-        data.sort((a,b) => b.score - a.score).forEach((item, i) => {
-            tbody.innerHTML += `<tr><td>${i+1}</td><td>${item.name}</td><td>${item.score}</td></tr>`;
-        });
+        if (snapshot.exists()) {
+            let data = [];
+            snapshot.forEach(child => {
+                data.push(child.val());
+            });
+
+            // ترتيب البيانات من الأعلى للأقل
+            data.sort((a, b) => b.score - a.score);
+
+            data.forEach((item, i) => {
+                const rankClass = i === 0 ? 'rank-1' : '';
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="${rankClass}">${i + 1}</td>
+                        <td>${item.name || "لاعب مجهول"}</td>
+                        <td>${item.score}</td>
+                    </tr>`;
+            });
+        } else {
+            tbody.innerHTML = "<tr><td colspan='3'>لا توجد نتائج مسجلة بعد.</td></tr>";
+        }
+    } catch (error) {
+        console.error(error);
+        tbody.innerHTML = "<tr><td colspan='3' style='color:red'>خطأ في الاتصال (قد تحتاج VPN في بعض المناطق)</td></tr>";
     }
 }
 
-// ربط الأزرار يدوياً (بدون onclick في الـ HTML)
+// ربط الأزرار بطريقة احترافية
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function() {
-        // تغيير اللون للأحمر الفاقع
+        // تحديث شكل الأزرار
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
         
-        // جلب البيانات بناءً على نص الزر
-        const modeMap = { "الجمع ➕": "addition", "الطرح ➖": "minus", "الضرب ✖": "multiplication", "القسمة ➗": "division" };
-        loadData(modeMap[this.innerText.trim()]);
+        // جلب البيانات بناءً على data-mode
+        const mode = this.getAttribute('data-mode');
+        loadData(mode);
     });
 });
 
-// تشغيل الجمع عند البداية
+// تشغيل وضع "الجمع" عند فتح الصفحة مباشرة
 loadData('addition');
-window.switchTab = async function(mode, btn) {
-    const tbody = document.getElementById("leaderboardBody");
-    
-    // تغيير الألوان للأحمر الفاقع (سيشتغل حتى بدون إنترنت)
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    if(btn) btn.classList.add('active');
-
-    tbody.innerHTML = "<tr><td colspan='3'>جاري المحاولة (تحتاج VPN)...</td></tr>";
-
-    // بيانات تجريبية تظهر إذا تأخر الرد (عشان تشوف التصميم)
-    setTimeout(() => {
-        if(tbody.innerHTML.includes("جاري المحاولة")) {
-             tbody.innerHTML = `
-                <tr class="top-3"><td>1</td><td>بطل تجريبي</td><td>9999</td></tr>
-                <tr><td>2</td><td>إدريس (مبرمج الموقع)</td><td>8500</td></tr>
-             `;
-        }
-    }, 3000);
-
-    // الكود الحقيقي الذي يحتاج VPN
-    // اجعل الدالة عالمية ليفهمها المتصفح في الجوال
-window.switchTab = async function(mode, btn) {
-    const tbody = document.getElementById("leaderboardBody");
-    
-    // 1. تغيير الألوان للأحمر الفاقع فوراً (حتى لو النت ضعيف)
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    if(btn) btn.classList.add('active');
-
-    tbody.innerHTML = "<tr><td colspan='3' style='color:#8b8b9a'>جاري التحميل...</td></tr>";
-
-    // 2. جلب البيانات من فايربيس
-    try {
-        // ... كود الفايربيس اللي كتبناه سابقاً ...
-        // (تأكد من وضع الإعدادات FirebaseConfig هنا)
-    } catch (e) {
-        tbody.innerHTML = "<tr><td colspan='3'>خطأ في الاتصال!</td></tr>";
-    }
-}
