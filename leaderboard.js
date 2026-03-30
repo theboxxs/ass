@@ -1,6 +1,7 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, query, orderByChild, limitToLast, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getDatabase, ref, query, orderByChild, limitToLast, get } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
+// 1. إعدادات Firebase (نفس التي استخدمتها في الصفحات الأخرى)
 const firebaseConfig = {
     apiKey: "AIzaSyAj8bNAd5axoXs9EnvGso7kBF1S9dgUEqM",
     authDomain: "asss-d3452.firebaseapp.com",
@@ -14,40 +15,52 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-async function loadData(category) {
-    const body = document.getElementById("leaderboardBody");
-    body.innerHTML = "<tr><td colspan='3'>جاري الفحص...</td></tr>";
+// 2. الدالة السحرية لجلب البيانات حسب "النوع" (Mode)
+window.loadLeaderboard = async function(mode) {
+    const tableBody = document.getElementById("leaderboardBody");
+    const titleDisplay = document.getElementById("currentModeTitle");
+
+    // تحديث العنوان ليظفر المستخدم بأي قسم هو الآن
+    const names = {
+        'addition': 'أبطال الجمع ➕',
+        'minus': 'أبطال الطرح ➖',
+        'multiplication': 'أبطال الضرب ✖️',
+        'division': 'أبطال القسمة ➗'
+    };
+    if(titleDisplay) titleDisplay.innerText = names[mode];
+
+    tableBody.innerHTML = "<tr><td colspan='3'>جاري تحميل الأبطال... ⏳</td></tr>";
+
+    // طلب البيانات مرتبة حسب السكور (أعلى 10)
+    const dbRef = query(ref(db, `leaderboard/${mode}`), orderByChild("score"), limitToLast(10));
 
     try {
-        // فحص الاتصال البسيط أولاً
-        const dbRef = query(ref(db, `leaderboard/${category}`), orderByChild('score'), limitToLast(10));
         const snapshot = await get(dbRef);
+        tableBody.innerHTML = ""; 
         
-        body.innerHTML = "";
-
         if (snapshot.exists()) {
             let players = [];
-            snapshot.forEach(child => players.push(child.val()));
-            players.reverse();
+            snapshot.forEach((child) => {
+                players.push(child.val());
+            });
 
-            players.forEach((p, i) => {
-                body.innerHTML += `<tr><td>${i+1}</td><td>${p.name}</td><td>${p.score}</td></tr>`;
+            // ترتيب من الأعلى إلى الأقل
+            players.reverse().forEach((player, index) => {
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${player.name}</td>
+                        <td>${player.score.toLocaleString()}</td>
+                    </tr>`;
             });
         } else {
-            body.innerHTML = "<tr><td colspan='3'>لا توجد بيانات في قسم: " + category + "</td></tr>";
+            tableBody.innerHTML = "<tr><td colspan='3'>لا توجد نتائج مسجلة في هذا القسم بعد! 🏆</td></tr>";
         }
-    } catch (e) {
-        console.error("Firebase Error:", e);
-        // سيعرض لك السبب الحقيقي للخطأ بالإنجليزية على الشاشة
-        body.innerHTML = `<tr><td colspan='3' style='color:red;'>سبب الخطأ: ${e.message}</td></tr>`;
+    } catch (error) {
+        console.error("Error:", error);
+        tableBody.innerHTML = "<tr><td colspan='3'>خطأ في جلب البيانات، تأكد من اتصال الإنترنت ⚠️</td></tr>";
     }
 }
 
-window.switchTab = function(category, element) {
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    element.classList.add('active');
-    loadData(category);
-}
-
-// البدء بتحميل بيانات الجمع
-loadData('addition');
+// تشغيل "الجمع" تلقائياً عند فتح الصفحة لأول مرة
+window.onload = () => loadLeaderboard('addition');
