@@ -4,106 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة أبطال أُسُس</title>
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-
-        body {
-            font-family: 'Cairo', sans-serif;
-            background-color: #f4f7f6;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        h2 { color: #2c3e50; margin-bottom: 20px; }
-
-        .filter-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-
-        button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 12px;
-            background-color: #3498db;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-            font-size: 14px;
-        }
-
-        button:hover { background-color: #2980b9; transform: translateY(-2px); }
-        button.active { background-color: #2c3e50; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th, td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        th { background-color: #f8f9fa; color: #7f8c8d; font-size: 14px; }
-
-        /* تلوين المراكز الثلاثة الأولى */
-        tr:nth-child(1) td:nth-child(1) { color: #f1c40f; font-weight: bold; font-size: 1.3em; } /* ذهبي */
-        tr:nth-child(2) td:nth-child(1) { color: #95a5a6; font-weight: bold; } /* فضي */
-        tr:nth-child(3) td:nth-child(1) { color: #e67e22; font-weight: bold; } /* برونزي */
-
-        .back-btn {
-            margin-top: 20px;
-            background-color: #95a5a6;
-            width: 100%;
-        }
+        body { font-family: 'Cairo', sans-serif; background-color: #f0f2f5; text-align: center; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { color: #2c3e50; }
+        .btn-group { display: flex; justify-content: center; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; }
+        button { padding: 8px 15px; border: none; border-radius: 8px; background: #3498db; color: white; cursor: pointer; font-weight: bold; }
+        button:hover { background: #2980b9; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; }
+        .gold { color: #f1c40f; font-weight: bold; }
+        .silver { color: #95a5a6; }
+        .bronze { color: #d35400; }
+        #status { color: #e74c3c; margin: 10px 0; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2 id="currentModeTitle">أبطال الجمع ➕</h2>
-
-    <div class="filter-buttons">
-        <button onclick="loadLeaderboard('addition')">الجمع</button>
-        <button onclick="loadLeaderboard('minus')">الطرح</button>
-        <button onclick="loadLeaderboard('multiplication')">الضرب</button>
-        <button onclick="loadLeaderboard('division')">القسمة</button>
+    <h2 id="modeTitle">أبطال الجمع ➕</h2>
+    
+    <div class="btn-group">
+        <button onclick="loadData('addition')">الجمع</button>
+        <button onclick="loadData('multiplication')">الضرب</button>
+        <button onclick="loadData('minus')">الطرح</button>
+        <button onclick="loadData('division')">القسمة</button>
     </div>
+
+    <div id="status"></div>
 
     <table>
         <thead>
             <tr>
-                <th>المركز</th>
-                <th>الاسم</th>
+                <th>#</th>
+                <th>البطل</th>
                 <th>النقاط</th>
             </tr>
         </thead>
-        <tbody id="leaderboardBody">
-            <tr><td colspan="3">جاري التحميل...</td></tr>
-        </tbody>
+        <tbody id="tableBody">
+            </tbody>
     </table>
-
-    <button class="back-btn" onclick="window.location.href='home.html'">العودة للرئيسية</button>
+    
+    <br>
+    <button style="background:#95a5a6; width:100%" onclick="window.location.href='index.html'">رجوع</button>
 </div>
 
 <script type="module">
@@ -123,54 +68,51 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // جعل الدالة عالمية لكي تعمل مع onclick في HTML
-    window.loadLeaderboard = async function(mode) {
-        const tableBody = document.getElementById("leaderboardBody");
-        const titleDisplay = document.getElementById("currentModeTitle");
+    window.loadData = async function(mode) {
+        const tbody = document.getElementById("tableBody");
+        const status = document.getElementById("status");
+        const modeTitle = document.getElementById("modeTitle");
 
-        const modeNames = {
-            'addition': 'أبطال الجمع ➕',
-            'minus': 'أبطال الطرح ➖',
-            'multiplication': 'أبطال الضرب ✖️',
-            'division': 'أبطال القسمة ➗'
-        };
+        const titles = { 'addition': 'أبطال الجمع ➕', 'multiplication': 'أبطال الضرب ✖️', 'minus': 'أبطال الطرح ➖', 'division': 'أبطال القسمة ➗' };
+        modeTitle.innerText = titles[mode];
         
-        titleDisplay.innerText = modeNames[mode];
-        tableBody.innerHTML = "<tr><td colspan='3'>جاري جلب الأبطال... ⏳</td></tr>";
+        status.innerText = "جاري التحميل...";
+        tbody.innerHTML = "";
 
-        const dbRef = query(ref(db, `leaderboard/${mode}`), orderByChild("score"), limitToLast(10));
+        // ملاحظة مهمة: المسار هنا هو 'leaderboard/' + النوع
+        const scoresRef = query(ref(db, 'leaderboard/' + mode), orderByChild("score"), limitToLast(10));
 
         try {
-            const snapshot = await get(dbRef);
-            tableBody.innerHTML = ""; 
-            
+            const snapshot = await get(scoresRef);
+            status.innerText = "";
+
             if (snapshot.exists()) {
-                let players = [];
-                snapshot.forEach((child) => {
-                    players.push(child.val());
+                let data = [];
+                snapshot.forEach(child => {
+                    data.push(child.val());
                 });
 
                 // ترتيب من الأعلى للأقل
-                players.reverse().forEach((player, index) => {
-                    tableBody.innerHTML += `
+                data.sort((a, b) => b.score - a.score).forEach((item, index) => {
+                    let rankClass = index === 0 ? 'gold' : (index === 1 ? 'silver' : (index === 2 ? 'bronze' : ''));
+                    tbody.innerHTML += `
                         <tr>
-                            <td>${index + 1}</td>
-                            <td>${player.name}</td>
-                            <td>${player.score.toLocaleString()}</td>
+                            <td class="${rankClass}">${index + 1}</td>
+                            <td>${item.name}</td>
+                            <td>${item.score.toLocaleString()}</td>
                         </tr>`;
                 });
             } else {
-                tableBody.innerHTML = "<tr><td colspan='3'>لا توجد نتائج مسجلة هنا بعد 🏆</td></tr>";
+                status.innerText = "لا توجد نتائج في هذا القسم حتى الآن.";
             }
-        } catch (error) {
-            console.error(error);
-            tableBody.innerHTML = "<tr><td colspan='3'>خطأ في الاتصال بالقاعدة ⚠️</td></tr>";
+        } catch (err) {
+            console.error(err);
+            status.innerText = "خطأ: تأكد من إعدادات الحماية (Rules) في Firebase.";
         }
     }
 
-    // تحميل الجمع تلقائياً عند فتح الصفحة
-    window.onload = () => loadLeaderboard('addition');
+    // تشغيل الجمع تلقائياً عند البدء
+    window.onload = () => loadData('addition');
 </script>
-
 </body>
 </html>
