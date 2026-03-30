@@ -30,7 +30,7 @@ function newQuestion() {
     num1 = Math.floor(Math.random() * 20) + 1;
     num2 = Math.floor(Math.random() * 20) + 1;
     rightAnswer = num1 - num2;
-    document.getElementById("equationText").innerText = `${num1} + ${num2} = ?`;
+    document.getElementById("equationText").innerText = `${num1} - ${num2} = ?`;
     document.getElementById("answerInput").value = "";
     document.getElementById("answerInput").focus();
 }
