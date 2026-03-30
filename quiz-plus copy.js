@@ -37,7 +37,13 @@ function newQuestion() {
     document.getElementById("answerInput").value = "";
     document.getElementById("answerInput").focus();
 }
-
+// كود تفعيل زر الإنتر
+document.getElementById("answerInput").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); // منع تحديث الصفحة
+        checkAnswer(); // استدعاء دالة التحقق التي برمجتها
+    }
+});
 // عند الحفظ في Firebase، غير المسار ليكون تحت 'leaderboard/multiplication'
 push(ref(db, 'leaderboard/multiplication'), {
     name: name,
