@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getDatabase, ref, query, orderByChild, limitToLast, get } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
-// إعداداتك (تأكد أنها صحيحة كما هي عندك)
 const firebaseConfig = {
     apiKey: "AIzaSyAj8bNAd5axoXs9EnvGso7kBF1S9dgUEqM",
     authDomain: "asss-d3452.firebaseapp.com",
@@ -15,46 +14,36 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// أهم سطر: ربط الدالة بـ window لكي تعمل الأزرار
-window.switchTab = async function(mode, btn) {
+// دالة جلب البيانات
+async function loadData(mode) {
     const tbody = document.getElementById("leaderboardBody");
-    
-    // تحديث شكل الأزرار (إزالة الـ active من الجميع وإضافته للضغطت عليه)
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    if(btn) btn.classList.add('active');
-
-    tbody.innerHTML = "<tr><td colspan='3'>جاري جلب الأبطال...</td></tr>";
+    tbody.innerHTML = "<tr><td colspan='3'>جاري التحميل...</td></tr>";
 
     const scoresRef = query(ref(db, 'leaderboard/' + mode), orderByChild("score"), limitToLast(10));
+    const snapshot = await get(scoresRef);
+    tbody.innerHTML = "";
 
-    try {
-        const snapshot = await get(scoresRef);
-        tbody.innerHTML = "";
-
-        if (snapshot.exists()) {
-            let data = [];
-            snapshot.forEach(child => data.push(child.val()));
-
-            // ترتيب تنازلي
-            data.sort((a, b) => b.score - a.score).forEach((item, index) => {
-                let rankClass = index === 0 ? 'rank-1' : '';
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="${rankClass}">${index + 1}</td>
-                        <td>${item.name}</td>
-                        <td>${item.score.toLocaleString()}</td>
-                    </tr>`;
-            });
-        } else {
-            tbody.innerHTML = "<tr><td colspan='3'>لا يوجد متصدرين في هذا القسم.</td></tr>";
-        }
-    } catch (err) {
-        tbody.innerHTML = "<tr><td colspan='3' style='color:red;'>خطأ في الاتصال!</td></tr>";
+    if (snapshot.exists()) {
+        let data = [];
+        snapshot.forEach(c => data.push(c.val()));
+        data.sort((a,b) => b.score - a.score).forEach((item, i) => {
+            tbody.innerHTML += `<tr><td>${i+1}</td><td>${item.name}</td><td>${item.score}</td></tr>`;
+        });
     }
-};
+}
 
-// تشغيل أول قسم تلقائياً عند فتح الصفحة
-document.addEventListener("DOMContentLoaded", () => {
-    const defaultBtn = document.querySelector('.tab-btn');
-    if(defaultBtn) window.switchTab('addition', defaultBtn);
+// ربط الأزرار يدوياً (بدون onclick في الـ HTML)
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        // تغيير اللون للأحمر الفاقع
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // جلب البيانات بناءً على نص الزر
+        const modeMap = { "الجمع ➕": "addition", "الطرح ➖": "minus", "الضرب ✖": "multiplication", "القسمة ➗": "division" };
+        loadData(modeMap[this.innerText.trim()]);
+    });
 });
+
+// تشغيل الجمع عند البداية
+loadData('addition');
