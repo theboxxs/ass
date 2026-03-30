@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getDatabase, ref, query, orderByChild, limitToLast, get } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
-// 1. إعدادات Firebase (نفس التي استخدمتها في الصفحات الأخرى)
+// إعدادات Firebase الخاصة بمشروعك (أُسُس)
 const firebaseConfig = {
     apiKey: "AIzaSyAj8bNAd5axoXs9EnvGso7kBF1S9dgUEqM",
     authDomain: "asss-d3452.firebaseapp.com",
@@ -15,52 +15,52 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// 2. الدالة السحرية لجلب البيانات حسب "النوع" (Mode)
-window.loadLeaderboard = async function(mode) {
-    const tableBody = document.getElementById("leaderboardBody");
-    const titleDisplay = document.getElementById("currentModeTitle");
+// دالة تبديل الأقسام (الجمع، الطرح، إلخ)
+window.switchTab = async function(mode, btn) {
+    const tbody = document.getElementById("leaderboardBody");
+    
+    // 1. تحديث شكل الأزرار (إضافة الكلاس active للزر المختار)
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
 
-    // تحديث العنوان ليظفر المستخدم بأي قسم هو الآن
-    const names = {
-        'addition': 'أبطال الجمع ➕',
-        'minus': 'أبطال الطرح ➖',
-        'multiplication': 'أبطال الضرب ✖️',
-        'division': 'أبطال القسمة ➗'
-    };
-    if(titleDisplay) titleDisplay.innerText = names[mode];
+    tbody.innerHTML = "<tr><td colspan='3'>جاري التحميل...</td></tr>";
 
-    tableBody.innerHTML = "<tr><td colspan='3'>جاري تحميل الأبطال... ⏳</td></tr>";
-
-    // طلب البيانات مرتبة حسب السكور (أعلى 10)
-    const dbRef = query(ref(db, `leaderboard/${mode}`), orderByChild("score"), limitToLast(10));
+    // 2. جلب البيانات من المسار الصحيح في Firebase
+    const scoresRef = query(ref(db, 'leaderboard/' + mode), orderByChild("score"), limitToLast(10));
 
     try {
-        const snapshot = await get(dbRef);
-        tableBody.innerHTML = ""; 
-        
+        const snapshot = await get(scoresRef);
+        tbody.innerHTML = "";
+
         if (snapshot.exists()) {
-            let players = [];
-            snapshot.forEach((child) => {
-                players.push(child.val());
+            let data = [];
+            snapshot.forEach(child => {
+                data.push(child.val());
             });
 
-            // ترتيب من الأعلى إلى الأقل
-            players.reverse().forEach((player, index) => {
-                tableBody.innerHTML += `
+            // ترتيب تنازلي (من الأعلى للأقل)
+            data.sort((a, b) => b.score - a.score).forEach((item, index) => {
+                // تلوين المركز الأول بالذهبي كما في الـ CSS الخاص بك
+                let rankClass = index === 0 ? 'rank-1' : '';
+                
+                tbody.innerHTML += `
                     <tr>
-                        <td>${index + 1}</td>
-                        <td>${player.name}</td>
-                        <td>${player.score.toLocaleString()}</td>
+                        <td class="${rankClass}">${index + 1}</td>
+                        <td>${item.name}</td>
+                        <td>${item.score.toLocaleString()}</td>
                     </tr>`;
             });
         } else {
-            tableBody.innerHTML = "<tr><td colspan='3'>لا توجد نتائج مسجلة في هذا القسم بعد! 🏆</td></tr>";
+            tbody.innerHTML = "<tr><td colspan='3'>لا توجد نتائج بعد في هذا التحدي.</td></tr>";
         }
-    } catch (error) {
-        console.error("Error:", error);
-        tableBody.innerHTML = "<tr><td colspan='3'>خطأ في جلب البيانات، تأكد من اتصال الإنترنت ⚠️</td></tr>";
+    } catch (err) {
+        console.error(err);
+        tbody.innerHTML = "<tr><td colspan='3' style='color:red;'>خطأ في الاتصال بالشبكة!</td></tr>";
     }
 }
 
-// تشغيل "الجمع" تلقائياً عند فتح الصفحة لأول مرة
-window.onload = () => loadLeaderboard('addition');
+// تشغيل قسم الجمع تلقائياً عند فتح الصفحة لأول مرة
+window.onload = () => {
+    const firstBtn = document.querySelector('.tab-btn');
+    if(firstBtn) switchTab('addition', firstBtn);
+};
