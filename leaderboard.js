@@ -66,4 +66,4 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 
 // 4. تحميل بيانات "الجمع" عند البداية
 loadData('addition');
-}
+
