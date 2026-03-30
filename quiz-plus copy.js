@@ -19,12 +19,18 @@ let score = 0, tries = 0, num1, num2, rightAnswer, startTime;
 let isGameOver = false;
 
 // 2. إدارة المدخلات (تحسين استجابة Enter)
-document.addEventListener("keydown", function(e) {
+// نضع الكود داخل حدثDOMContentLoaded لضمان أن العناصر تم تحميلها
+document.addEventListener("DOMContentLoaded", function() {
     const input = document.getElementById("answerInput");
-    // التأكد أن الضغط على Enter يحدث فقط عندما يكون قسم الأسئلة ظاهراً واللعبة لم تنتهِ
-    if (e.key === "Enter" && document.getElementById("questionSection").style.display === "block" && !isGameOver) {
-        e.preventDefault();
-        checkAnswer();
+
+    if (input) {
+        input.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault(); // منع المتصفح من تحديث الصفحة
+                console.log("Enter pressed!"); // للتأكد في الكونسول
+                checkAnswer(); // استدعاء دالة التحقق
+            }
+        });
     }
 });
 
