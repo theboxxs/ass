@@ -6,31 +6,100 @@
     <title>لوحة أبطال أُسُس</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-        body { font-family: 'Cairo', sans-serif; background-color: #f0f2f5; text-align: center; padding: 20px; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h2 { color: #2c3e50; }
-        .btn-group { display: flex; justify-content: center; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; }
-        button { padding: 8px 15px; border: none; border-radius: 8px; background: #3498db; color: white; cursor: pointer; font-weight: bold; }
-        button:hover { background: #2980b9; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; }
-        .gold { color: #f1c40f; font-weight: bold; }
-        .silver { color: #95a5a6; }
-        .bronze { color: #d35400; }
-        #status { color: #e74c3c; margin: 10px 0; font-size: 14px; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            width: 100%;
+            max-width: 550px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            padding: 25px;
+            text-align: center;
+        }
+
+        h2 { font-size: 28px; color: #2d3436; margin-bottom: 20px; }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: 2px solid #6c5ce7;
+            background: white;
+            color: #6c5ce7;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover, button.active {
+            background: #6c5ce7;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            padding: 12px;
+            color: #636e72;
+            border-bottom: 2px solid #eee;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f1f1f1;
+            font-size: 18px;
+        }
+
+        .gold { color: #f1c40f; font-weight: bold; font-size: 22px; }
+        .silver { color: #bdc3c7; font-weight: bold; font-size: 20px; }
+        .bronze { color: #e67e22; font-weight: bold; font-size: 19px; }
+
+        #status { color: #d63031; margin-bottom: 10px; font-weight: bold; }
+
+        .back-btn {
+            margin-top: 25px;
+            background: #dfe6e9;
+            border: none;
+            color: #2d3436;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2 id="modeTitle">أبطال الجمع ➕</h2>
+    <h2 id="title">أبطال أُسُس 🏆</h2>
     
     <div class="btn-group">
-        <button onclick="loadData('addition')">الجمع</button>
-        <button onclick="loadData('multiplication')">الضرب</button>
-        <button onclick="loadData('minus')">الطرح</button>
-        <button onclick="loadData('division')">القسمة</button>
+        <button onclick="loadData('addition', this)">الجمع</button>
+        <button onclick="loadData('minus', this)">الطرح</button>
+        <button onclick="loadData('multiplication', this)">الضرب</button>
+        <button onclick="loadData('division', this)">القسمة</button>
     </div>
 
     <div id="status"></div>
@@ -47,8 +116,7 @@
             </tbody>
     </table>
     
-    <br>
-    <button style="background:#95a5a6; width:100%" onclick="window.location.href='index.html'">رجوع</button>
+    <button class="back-btn" onclick="window.location.href='index.html'">العودة للرئيسية</button>
 </div>
 
 <script type="module">
@@ -68,18 +136,17 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    window.loadData = async function(mode) {
+    window.loadData = async function(mode, btn) {
         const tbody = document.getElementById("tableBody");
         const status = document.getElementById("status");
-        const modeTitle = document.getElementById("modeTitle");
-
-        const titles = { 'addition': 'أبطال الجمع ➕', 'multiplication': 'أبطال الضرب ✖️', 'minus': 'أبطال الطرح ➖', 'division': 'أبطال القسمة ➗' };
-        modeTitle.innerText = titles[mode];
         
+        // تغيير شكل الأزرار
+        document.querySelectorAll('.btn-group button').forEach(b => b.classList.remove('active'));
+        if(btn) btn.classList.add('active');
+
         status.innerText = "جاري التحميل...";
         tbody.innerHTML = "";
 
-        // ملاحظة مهمة: المسار هنا هو 'leaderboard/' + النوع
         const scoresRef = query(ref(db, 'leaderboard/' + mode), orderByChild("score"), limitToLast(10));
 
         try {
@@ -103,16 +170,17 @@
                         </tr>`;
                 });
             } else {
-                status.innerText = "لا توجد نتائج في هذا القسم حتى الآن.";
+                status.innerText = "لا توجد نتائج لهذا القسم بعد.";
             }
         } catch (err) {
             console.error(err);
-            status.innerText = "خطأ: تأكد من إعدادات الحماية (Rules) في Firebase.";
+            status.innerText = "خطأ في الاتصال بقاعدة البيانات.";
         }
     }
 
     // تشغيل الجمع تلقائياً عند البدء
-    window.onload = () => loadData('addition');
+    window.onload = () => loadData('addition', document.querySelector('button'));
 </script>
+
 </body>
 </html>
