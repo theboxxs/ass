@@ -3,183 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة أبطال أُسُس</title>
+    <title>أُسُس - لوحة الأبطال</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="quiz-plus.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-
-        /* الألوان المطلوبة: أزرق داكن وأحمر فاقع */
-        :root {
-            --dark-blue: #1a2a6c;
-            --bright-red: #ff0000;
-            --light-bg: #f4f7f6;
-        }
-
-        body {
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--light-bg);
-            margin: 0;
-            padding: 20px;
+        /* تنسيق أزرار التبديل */
+        .tabs-container {
             display: flex;
             justify-content: center;
-        }
-
-        .container {
-            background: white;
-            width: 100%;
-            max-width: 500px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border-top: 8px solid var(--dark-blue); /* خط علوي أزرق داكن */
-            padding: 20px;
-            text-align: center;
-        }
-
-        h2 { color: var(--dark-blue); margin-bottom: 25px; }
-
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 5px;
+            gap: 10px;
             margin-bottom: 25px;
             flex-wrap: wrap;
         }
-
-        button {
-            padding: 10px 15px;
-            border: 2px solid var(--dark-blue);
-            background: white;
-            color: var(--dark-blue);
-            border-radius: 8px;
-            font-weight: bold;
+        .tab-btn {
+            background: #1a1a35;
+            border: 1px solid #252545;
+            color: #8b8b9a;
+            padding: 10px 20px;
+            border-radius: 12px;
             cursor: pointer;
+            font-family: 'Cairo';
             transition: 0.3s;
         }
-
-        /* الزر النشط يتحول للأحمر الفاقع */
-        button.active {
-            background: var(--bright-red);
+        .tab-btn.active {
+            background: var(--brand-red);
             color: white;
-            border-color: var(--bright-red);
+            border-color: var(--brand-red);
+            box-shadow: 0 0 15px rgba(243, 26, 26, 0.3);
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background-color: var(--dark-blue);
-            color: white;
-            padding: 12px;
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-            font-weight: bold;
-        }
-
-        /* تمييز المركز الأول بالأحمر الفاقع */
-        .rank-1 { color: var(--bright-red); font-size: 1.2em; }
-
-        .status { color: var(--bright-red); margin: 10px; font-size: 14px; }
-
-        .back-btn {
-            margin-top: 20px;
-            background: #ecf0f1;
-            border: none;
-            color: var(--dark-blue);
-            width: 100%;
-            padding: 12px;
-        }
+        .leaderboard-table { width: 100%; border-collapse: collapse; color: white; }
+        .leaderboard-table th { color: var(--brand-red); padding: 15px; border-bottom: 2px solid #252545; }
+        .leaderboard-table td { padding: 12px; border-bottom: 1px solid #1a1a35; text-align: center; }
+        .rank-1 { color: #ffd700; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>لوحة المتصدرين 🏆</h2>
-    
-    <div class="btn-group">
-        <button id="btn-addition" onclick="loadData('addition')">الجمع</button>
-        <button id="id-minus" onclick="loadData('minus')">الطرح</button>
-        <button id="id-multiplication" onclick="loadData('multiplication')">الضرب</button>
-        <button id="id-division" onclick="loadData('division')">القسمة</button>
+    <button class="exit-btn" onclick="location.href='home.html'">🏠 العودة</button>
+
+    <div class="main-container">
+        <header class="game-header">
+            <h1 class="logo-text">لوحة الأبطال</h1>
+            <p style="color: #8b8b9a; margin-bottom: 20px;">اختر العملية لعرض المتصدرين</p>
+            
+            <div class="tabs-container">
+                <button class="tab-btn active" onclick="switchTab('addition', this)">الجمع ➕</button>
+                <button class="tab-btn" onclick="switchTab('minus', this)">الطرح ➖</button>
+                <button class="tab-btn" onclick="switchTab('multiplication', this)">الضرب ✖</button>
+                <button class="tab-btn" onclick="switchTab('division', this)">القسمة ➗</button>
+            </div>
+        </header>
+
+        <main class="quiz-card" style="padding: 20px;">
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>المركز</th>
+                        <th>اللاعب</th>
+                        <th>النقاط</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                    </tbody>
+            </table>
+        </main>
     </div>
 
-    <div id="status" class="status"></div>
-
-    <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>البطل</th>
-                <th>النقاط</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-    </table>
-    
-    <button class="back-btn" onclick="window.location.href='index.html'">العودة للرئيسية</button>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getDatabase, ref, query, orderByChild, limitToLast, get } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyAj8bNAd5axoXs9EnvGso7kBF1S9dgUEqM",
-        authDomain: "asss-d3452.firebaseapp.com",
-        databaseURL: "https://asss-d3452-default-rtdb.firebaseio.com",
-        projectId: "asss-d3452",
-        storageBucket: "asss-d3452.firebasestorage.app",
-        messagingSenderId: "169933688004",
-        appId: "1:169933688004:web:3d367c0127d12242414d91"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    window.loadData = async function(mode) {
-        const tbody = document.getElementById("tableBody");
-        const status = document.getElementById("status");
-        
-        // تحديث الأزرار (أزرق -> أحمر عند الضغط)
-        document.querySelectorAll('.btn-group button').forEach(btn => btn.classList.remove('active'));
-        // ملاحظة: استخدمنا selector مرن ليجد الزر المختار
-        event?.target?.classList?.add('active') || document.getElementById('btn-addition').classList.add('active');
-
-        status.innerText = "جاري البحث عن الأبطال...";
-        tbody.innerHTML = "";
-
-        const scoresRef = query(ref(db, 'leaderboard/' + mode), orderByChild("score"), limitToLast(10));
-
-        try {
-            const snapshot = await get(scoresRef);
-            status.innerText = "";
-
-            if (snapshot.exists()) {
-                let data = [];
-                snapshot.forEach(child => data.push(child.val()));
-
-                data.sort((a, b) => b.score - a.score).forEach((item, index) => {
-                    let rankClass = index === 0 ? 'rank-1' : '';
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="${rankClass}">${index + 1}</td>
-                            <td>${item.name}</td>
-                            <td>${item.score.toLocaleString()}</td>
-                        </tr>`;
-                });
-            } else {
-                status.innerText = "لا توجد سجلات بعد.";
-            }
-        } catch (err) {
-            status.innerText = "خطأ في الاتصال.";
-        }
-    }
-
-    window.onload = () => loadData('addition');
-</script>
-
+    <script type="module" src="leaderboard.js"></script>
 </body>
 </html>
