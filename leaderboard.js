@@ -67,11 +67,21 @@ window.switchTab = async function(mode, btn) {
     }, 3000);
 
     // الكود الحقيقي الذي يحتاج VPN
+    // اجعل الدالة عالمية ليفهمها المتصفح في الجوال
+window.switchTab = async function(mode, btn) {
+    const tbody = document.getElementById("leaderboardBody");
+    
+    // 1. تغيير الألوان للأحمر الفاقع فوراً (حتى لو النت ضعيف)
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+
+    tbody.innerHTML = "<tr><td colspan='3' style='color:#8b8b9a'>جاري التحميل...</td></tr>";
+
+    // 2. جلب البيانات من فايربيس
     try {
-        const scoresRef = query(ref(db, 'leaderboard/' + mode), orderByChild("score"), limitToLast(10));
-        const snapshot = await get(scoresRef);
-        // ... باقي الكود
-    } catch (err) {
-        console.log("فشل الاتصال بسبب الحجب في اليمن");
+        // ... كود الفايربيس اللي كتبناه سابقاً ...
+        // (تأكد من وضع الإعدادات FirebaseConfig هنا)
+    } catch (e) {
+        tbody.innerHTML = "<tr><td colspan='3'>خطأ في الاتصال!</td></tr>";
     }
-};
+}
