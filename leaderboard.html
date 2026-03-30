@@ -46,12 +46,12 @@
             <h1 class="logo-text">لوحة الأبطال</h1>
             <p style="color: #8b8b9a; margin-bottom: 20px;">اختر العملية لعرض المتصدرين</p>
             
-            <div class="tabs-container">
-                <button class="tab-btn active" onclick="switchTab('addition', this)">الجمع ➕</button>
-                <button class="tab-btn" onclick="switchTab('minus', this)">الطرح ➖</button>
-                <button class="tab-btn" onclick="switchTab('multiplication', this)">الضرب ✖</button>
-                <button class="tab-btn" onclick="switchTab('division', this)">القسمة ➗</button>
-            </div>
+         <div class="tabs-container">
+             <button class="tab-btn active" data-mode="addition">الجمع ➕</button>
+             <button class="tab-btn" data-mode="minus">الطرح ➖</button>
+             <button class="tab-btn" data-mode="multiplication">الضرب ✖</button>
+             <button class="tab-btn" data-mode="division">القسمة ➗</button>
+         </div>
         </header>
 
         <main class="quiz-card" style="padding: 20px;">
