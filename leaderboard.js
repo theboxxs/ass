@@ -47,3 +47,31 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 
 // تشغيل الجمع عند البداية
 loadData('addition');
+window.switchTab = async function(mode, btn) {
+    const tbody = document.getElementById("leaderboardBody");
+    
+    // تغيير الألوان للأحمر الفاقع (سيشتغل حتى بدون إنترنت)
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+
+    tbody.innerHTML = "<tr><td colspan='3'>جاري المحاولة (تحتاج VPN)...</td></tr>";
+
+    // بيانات تجريبية تظهر إذا تأخر الرد (عشان تشوف التصميم)
+    setTimeout(() => {
+        if(tbody.innerHTML.includes("جاري المحاولة")) {
+             tbody.innerHTML = `
+                <tr class="top-3"><td>1</td><td>بطل تجريبي</td><td>9999</td></tr>
+                <tr><td>2</td><td>إدريس (مبرمج الموقع)</td><td>8500</td></tr>
+             `;
+        }
+    }, 3000);
+
+    // الكود الحقيقي الذي يحتاج VPN
+    try {
+        const scoresRef = query(ref(db, 'leaderboard/' + mode), orderByChild("score"), limitToLast(10));
+        const snapshot = await get(scoresRef);
+        // ... باقي الكود
+    } catch (err) {
+        console.log("فشل الاتصال بسبب الحجب في اليمن");
+    }
+};
