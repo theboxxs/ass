@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, query, orderByChild, limitToLast, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+// 1. إعدادات Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyAj8bNAd5axoXs9EnvGso7kBF1S9dgUEqM",
     authDomain: "asss-d3452.firebaseapp.com",
@@ -14,9 +15,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// 2. دالة جلب البيانات
 async function loadData(mode) {
     const tbody = document.getElementById("leaderboardBody");
-    tbody.innerHTML = "<tr><td colspan='3' style='color:#8b8b9a'>جاري تحميل البيانات...</td></tr>";
+    if (!tbody) return;
+
+    tbody.innerHTML = "<tr><td colspan='3' style='color:#8b8b9a'>جاري التحميل...</td></tr>";
 
     try {
         const scoresRef = query(ref(db, 'leaderboard/' + mode), orderByChild("score"), limitToLast(10));
@@ -26,43 +30,39 @@ async function loadData(mode) {
 
         if (snapshot.exists()) {
             let data = [];
-            snapshot.forEach(child => {
-                data.push(child.val());
-            });
-
-            // ترتيب البيانات من الأعلى للأقل
+            snapshot.forEach(child => { data.push(child.val()); });
+            
+            // ترتيب تنازلي
             data.sort((a, b) => b.score - a.score);
 
             data.forEach((item, i) => {
-                const rankClass = i === 0 ? 'rank-1' : '';
                 tbody.innerHTML += `
                     <tr>
-                        <td class="${rankClass}">${i + 1}</td>
+                        <td>${i + 1}</td>
                         <td>${item.name || "لاعب مجهول"}</td>
                         <td>${item.score}</td>
                     </tr>`;
             });
         } else {
-            tbody.innerHTML = "<tr><td colspan='3'>لا توجد نتائج مسجلة بعد.</td></tr>";
+            tbody.innerHTML = "<tr><td colspan='3'>لا توجد نتائج مسجلة.</td></tr>";
         }
-    } catch (error) {
-        console.error(error);
-        tbody.innerHTML = "<tr><td colspan='3' style='color:red'>خطأ في الاتصال (قد تحتاج VPN في بعض المناطق)</td></tr>";
+    } catch (e) {
+        tbody.innerHTML = "<tr><td colspan='3' style='color:red'>خطأ في الاتصال بقاعدة البيانات</td></tr>";
     }
 }
 
-// ربط الأزرار بطريقة احترافية
+// 3. ربط الأزرار (Event Listeners)
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function() {
-        // تحديث شكل الأزرار
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
         
-        // جلب البيانات بناءً على data-mode
-        const mode = this.getAttribute('data-mode');
+        // استخراج النوع من نص الزر أو data attribute
+        const modeMap = { "الجمع ➕": "addition", "الطرح ➖": "minus", "الضرب ✖": "multiplication", "القسمة ➗": "division" };
+        const mode = modeMap[this.innerText.trim()];
         loadData(mode);
     });
 });
 
-// تشغيل وضع "الجمع" عند فتح الصفحة مباشرة
+// 4. تحميل بيانات "الجمع" عند البداية
 loadData('addition');
