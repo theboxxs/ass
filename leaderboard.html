@@ -2,121 +2,46 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة أبطال أُسُس</title>
+    <title>لوحة المتصدرين - أُسُس</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-
-        body {
-            font-family: 'Cairo', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
-            margin: 0;
-            color: #2c3e50;
-        }
-
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            width: 100%;
-            max-width: 550px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            padding: 25px;
-            text-align: center;
-        }
-
-        h2 { font-size: 28px; color: #2d3436; margin-bottom: 20px; }
-
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-
-        button {
-            padding: 10px 20px;
-            border: 2px solid #6c5ce7;
-            background: white;
-            color: #6c5ce7;
-            border-radius: 25px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        button:hover, button.active {
-            background: #6c5ce7;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th {
-            padding: 12px;
-            color: #636e72;
-            border-bottom: 2px solid #eee;
-        }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #f1f1f1;
-            font-size: 18px;
-        }
-
-        .gold { color: #f1c40f; font-weight: bold; font-size: 22px; }
-        .silver { color: #bdc3c7; font-weight: bold; font-size: 20px; }
-        .bronze { color: #e67e22; font-weight: bold; font-size: 19px; }
-
-        #status { color: #d63031; margin-bottom: 10px; font-weight: bold; }
-
-        .back-btn {
-            margin-top: 25px;
-            background: #dfe6e9;
-            border: none;
-            color: #2d3436;
-            width: 100%;
-        }
+        /* التنسيق البسيط المتوافق مع موقعك */
+        body { font-family: sans-serif; text-align: center; background-color: #f0f2f5; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .btn-group { margin-bottom: 20px; }
+        button { padding: 10px; margin: 5px; cursor: pointer; border-radius: 5px; border: 1px solid #ccc; background: #fff; }
+        button.active { background: #3498db; color: white; border-color: #3498db; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
+        .status { color: red; font-size: 14px; margin: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2 id="title">أبطال أُسُس 🏆</h2>
+    <h2>لوحة المتصدرين 🏆</h2>
     
     <div class="btn-group">
-        <button onclick="loadData('addition', this)">الجمع</button>
-        <button onclick="loadData('minus', this)">الطرح</button>
-        <button onclick="loadData('multiplication', this)">الضرب</button>
-        <button onclick="loadData('division', this)">القسمة</button>
+        <button id="btn-addition" onclick="loadData('addition')">الجمع</button>
+        <button id="btn-minus" onclick="loadData('minus')">الطرح</button>
+        <button id="btn-multiplication" onclick="loadData('multiplication')">الضرب</button>
+        <button id="btn-division" onclick="loadData('division')">القسمة</button>
     </div>
 
-    <div id="status"></div>
+    <div id="status" class="status"></div>
 
     <table>
         <thead>
             <tr>
-                <th>#</th>
-                <th>البطل</th>
+                <th>المركز</th>
+                <th>الاسم</th>
                 <th>النقاط</th>
             </tr>
         </thead>
-        <tbody id="tableBody">
-            </tbody>
+        <tbody id="tableBody"></tbody>
     </table>
     
-    <button class="back-btn" onclick="window.location.href='index.html'">العودة للرئيسية</button>
+    <br>
+    <button onclick="window.location.href='index.html'">رجوع للرئيسية</button>
 </div>
 
 <script type="module">
@@ -136,15 +61,16 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    window.loadData = async function(mode, btn) {
+    window.loadData = async function(mode) {
         const tbody = document.getElementById("tableBody");
         const status = document.getElementById("status");
         
-        // تغيير شكل الأزرار
-        document.querySelectorAll('.btn-group button').forEach(b => b.classList.remove('active'));
-        if(btn) btn.classList.add('active');
+        // تحديث شكل الزر النشط
+        document.querySelectorAll('.btn-group button').forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.getElementById('btn-' + mode);
+        if(activeBtn) activeBtn.classList.add('active');
 
-        status.innerText = "جاري التحميل...";
+        status.innerText = "جاري جلب البيانات...";
         tbody.innerHTML = "";
 
         const scoresRef = query(ref(db, 'leaderboard/' + mode), orderByChild("score"), limitToLast(10));
@@ -159,27 +85,25 @@
                     data.push(child.val());
                 });
 
-                // ترتيب من الأعلى للأقل
+                // ترتيب تنازلي
                 data.sort((a, b) => b.score - a.score).forEach((item, index) => {
-                    let rankClass = index === 0 ? 'gold' : (index === 1 ? 'silver' : (index === 2 ? 'bronze' : ''));
                     tbody.innerHTML += `
                         <tr>
-                            <td class="${rankClass}">${index + 1}</td>
+                            <td>${index + 1}</td>
                             <td>${item.name}</td>
                             <td>${item.score.toLocaleString()}</td>
                         </tr>`;
                 });
             } else {
-                status.innerText = "لا توجد نتائج لهذا القسم بعد.";
+                status.innerText = "لا توجد بيانات حالياً.";
             }
         } catch (err) {
-            console.error(err);
-            status.innerText = "خطأ في الاتصال بقاعدة البيانات.";
+            status.innerText = "خطأ في التحميل، تأكد من اتصال الإنترنت.";
         }
     }
 
-    // تشغيل الجمع تلقائياً عند البدء
-    window.onload = () => loadData('addition', document.querySelector('button'));
+    // التحميل التلقائي لقسم الجمع عند فتح الصفحة
+    window.onload = () => loadData('addition');
 </script>
 
 </body>
