@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getDatabase, ref, query, orderByChild, limitToLast, get } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
-// إعدادات Firebase الخاصة بمشروعك (أُسُس)
+// إعداداتك (تأكد أنها صحيحة كما هي عندك)
 const firebaseConfig = {
     apiKey: "AIzaSyAj8bNAd5axoXs9EnvGso7kBF1S9dgUEqM",
     authDomain: "asss-d3452.firebaseapp.com",
@@ -15,17 +15,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// دالة تبديل الأقسام (الجمع، الطرح، إلخ)
+// أهم سطر: ربط الدالة بـ window لكي تعمل الأزرار
 window.switchTab = async function(mode, btn) {
     const tbody = document.getElementById("leaderboardBody");
     
-    // 1. تحديث شكل الأزرار (إضافة الكلاس active للزر المختار)
+    // تحديث شكل الأزرار (إزالة الـ active من الجميع وإضافته للضغطت عليه)
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    if(btn) btn.classList.add('active');
 
-    tbody.innerHTML = "<tr><td colspan='3'>جاري التحميل...</td></tr>";
+    tbody.innerHTML = "<tr><td colspan='3'>جاري جلب الأبطال...</td></tr>";
 
-    // 2. جلب البيانات من المسار الصحيح في Firebase
     const scoresRef = query(ref(db, 'leaderboard/' + mode), orderByChild("score"), limitToLast(10));
 
     try {
@@ -34,15 +33,11 @@ window.switchTab = async function(mode, btn) {
 
         if (snapshot.exists()) {
             let data = [];
-            snapshot.forEach(child => {
-                data.push(child.val());
-            });
+            snapshot.forEach(child => data.push(child.val()));
 
-            // ترتيب تنازلي (من الأعلى للأقل)
+            // ترتيب تنازلي
             data.sort((a, b) => b.score - a.score).forEach((item, index) => {
-                // تلوين المركز الأول بالذهبي كما في الـ CSS الخاص بك
                 let rankClass = index === 0 ? 'rank-1' : '';
-                
                 tbody.innerHTML += `
                     <tr>
                         <td class="${rankClass}">${index + 1}</td>
@@ -51,16 +46,15 @@ window.switchTab = async function(mode, btn) {
                     </tr>`;
             });
         } else {
-            tbody.innerHTML = "<tr><td colspan='3'>لا توجد نتائج بعد في هذا التحدي.</td></tr>";
+            tbody.innerHTML = "<tr><td colspan='3'>لا يوجد متصدرين في هذا القسم.</td></tr>";
         }
     } catch (err) {
-        console.error(err);
-        tbody.innerHTML = "<tr><td colspan='3' style='color:red;'>خطأ في الاتصال بالشبكة!</td></tr>";
+        tbody.innerHTML = "<tr><td colspan='3' style='color:red;'>خطأ في الاتصال!</td></tr>";
     }
-}
-
-// تشغيل قسم الجمع تلقائياً عند فتح الصفحة لأول مرة
-window.onload = () => {
-    const firstBtn = document.querySelector('.tab-btn');
-    if(firstBtn) switchTab('addition', firstBtn);
 };
+
+// تشغيل أول قسم تلقائياً عند فتح الصفحة
+document.addEventListener("DOMContentLoaded", () => {
+    const defaultBtn = document.querySelector('.tab-btn');
+    if(defaultBtn) window.switchTab('addition', defaultBtn);
+});
