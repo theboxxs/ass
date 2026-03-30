@@ -16,28 +16,31 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 let score = 0, tries = 0, num1, num2, rightAnswer, startTime;
+let isGameOver = false;
 
-// 2. تفعيل زر Enter (حل مشكلة التعليق وعدم الاستجابة)
-// نربط الحدث بمجرد تحميل الصفحة
-window.onload = function() {
+// 2. إدارة المدخلات (تحسين استجابة Enter)
+document.addEventListener("keydown", function(e) {
     const input = document.getElementById("answerInput");
-    if (input) {
-        input.addEventListener("keydown", function(e) {
-            if (e.key === "Enter") {
-                e.preventDefault(); // منع أي سلوك افتراضي للمتصفح
-                checkAnswer(); // تنفيذ التحقق فوراً
-            }
-        });
+    // التأكد أن الضغط على Enter يحدث فقط عندما يكون قسم الأسئلة ظاهراً واللعبة لم تنتهِ
+    if (e.key === "Enter" && document.getElementById("questionSection").style.display === "block" && !isGameOver) {
+        e.preventDefault();
+        checkAnswer();
     }
-};
+});
 
 // 3. دالة بدء الاختبار
 window.startQuiz = function() {
     score = 0; 
     tries = 0;
+    isGameOver = false;
     startTime = Date.now();
+    
+    document.getElementById("triesCount").innerText = "0";
+    document.getElementById("scoreCount").innerText = "0";
     document.getElementById("startSection").style.display = "none";
+    document.getElementById("resultSection").style.display = "none";
     document.getElementById("questionSection").style.display = "block";
+    
     newQuestion();
 };
 
@@ -48,17 +51,21 @@ function newQuestion() {
     rightAnswer = num1 * num2;
     
     document.getElementById("equationText").innerText = `${num1} × ${num2} = ?`;
-    document.getElementById("answerInput").value = "";
-    document.getElementById("answerInput").focus(); // وضع الماوس داخل الخانة تلقائياً
+    const input = document.getElementById("answerInput");
+    input.value = "";
+    input.focus(); 
 }
 
 // 5. دالة التحقق من الإجابة
 window.checkAnswer = function() {
+    if (isGameOver) return;
+
     const userInp = document.getElementById("answerInput");
     const val = userInp.value.trim();
 
-    if (val === "") return; // تجاهل إذا كانت الخانة فارغة
+    if (val === "") return; 
 
+    // التحقق من الإجابة
     if (parseInt(val) === rightAnswer) {
         score++;
     }
@@ -70,31 +77,36 @@ window.checkAnswer = function() {
     if (tries < 10) {
         newQuestion();
     } else {
+        isGameOver = true;
         finishQuiz();
     }
 };
 
-// 6. إنهاء الاختبار وحفظ النتيجة في مسار الضرب (Multiplication)
+// 6. إنهاء الاختبار وحفظ النتيجة
 function finishQuiz() {
     const timeTaken = (Date.now() - startTime) / 1000;
-    let finalPoints = 0;
     
+    // معادلة النقاط: (الإجابات الصحيحة × 1000) مقسومة على (الزمن + 1 لتجنب القسمة على صفر)
+    // أضفت زيادة بسيطة لوزن الإجابات الصحيحة ليكون لها التأثير الأكبر
+    let finalPoints = 0;
     if (score > 0) {
-        // معادلة النقاط (كل ما كنت أسرع كانت النقاط أعلى)
-        finalPoints = Math.floor((score * 10000) / timeTaken);
+        finalPoints = Math.floor((score * 10000) / (timeTaken * 0.5)); 
     }
 
     document.getElementById("questionSection").style.display = "none";
     document.getElementById("resultSection").style.display = "block";
     document.getElementById("finalResult").innerText = finalPoints.toLocaleString() + " نقطة";
 
+    // جلب اسم المستخدم (تأكد من تخزينه عند تسجيل الدخول)
     const name = localStorage.getItem('activeUser') || "بطل أُسُس";
     
-    // الحفظ في Firebase تحت مسار الضرب تحديداً
+    // الحفظ في Firebase
     push(ref(db, 'leaderboard/multiplication'), {
         name: name,
         score: finalPoints,
-        time: new Date().toLocaleString()
+        correctAnswers: score,
+        timeTaken: timeTaken.toFixed(2),
+        timestamp: new Date().toISOString() // بصمة زمنية عالمية أدق
     }).then(() => {
         console.log("تم تحديث قائمة أبطال الضرب!");
     }).catch((error) => {
