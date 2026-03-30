@@ -27,13 +27,13 @@ window.startQuiz = function() {
 };
 
 function newQuestion() {
-    let a = Math.floor(Math.random() * 10) + 1;
-    let b = Math.floor(Math.random() * 10) + 1;
-    let product = a * b;
+    let divisor = Math.floor(Math.random() * 9) + 1; // الرقم الصغير (المقسوم عليه)
+    let result = Math.floor(Math.random() * 10) + 1; // الناتج المتوقع
+    let dividend = divisor * result; // الرقم الكبير (المقسوم)
     
-    num1 = product; // الرقم الكبير
-    num2 = a;       // المقسوم عليه
-    rightAnswer = b; // الناتج الصحيح دائماً رقم صحيح
+    num1 = dividend;
+    num2 = divisor;
+    rightAnswer = result;
     
     document.getElementById("equationText").innerText = `${num1} ÷ ${num2} = ?`;
     document.getElementById("answerInput").value = "";
@@ -97,7 +97,7 @@ function finishQuiz() {
     const name = localStorage.getItem('activeUser') || "لاعب أُسُس";
     
     // حفظ النقاط في Firebase
-    push(ref(db, 'leaderboard/addition'), {
+    push(ref(db, 'leaderboard/division'), {
         name: name,
         score: finalPoints, // هنا خزننا النقاط الكبيرة
         time: new Date().toLocaleString()
