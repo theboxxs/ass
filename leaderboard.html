@@ -2,17 +2,96 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة المتصدرين - أُسُس</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة أبطال أُسُس</title>
     <style>
-        /* التنسيق البسيط المتوافق مع موقعك */
-        body { font-family: sans-serif; text-align: center; background-color: #f0f2f5; padding: 20px; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .btn-group { margin-bottom: 20px; }
-        button { padding: 10px; margin: 5px; cursor: pointer; border-radius: 5px; border: 1px solid #ccc; background: #fff; }
-        button.active { background: #3498db; color: white; border-color: #3498db; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
-        .status { color: red; font-size: 14px; margin: 10px; }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+        /* الألوان المطلوبة: أزرق داكن وأحمر فاقع */
+        :root {
+            --dark-blue: #1a2a6c;
+            --bright-red: #ff0000;
+            --light-bg: #f4f7f6;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--light-bg);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-top: 8px solid var(--dark-blue); /* خط علوي أزرق داكن */
+            padding: 20px;
+            text-align: center;
+        }
+
+        h2 { color: var(--dark-blue); margin-bottom: 25px; }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: 2px solid var(--dark-blue);
+            background: white;
+            color: var(--dark-blue);
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        /* الزر النشط يتحول للأحمر الفاقع */
+        button.active {
+            background: var(--bright-red);
+            color: white;
+            border-color: var(--bright-red);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: var(--dark-blue);
+            color: white;
+            padding: 12px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-weight: bold;
+        }
+
+        /* تمييز المركز الأول بالأحمر الفاقع */
+        .rank-1 { color: var(--bright-red); font-size: 1.2em; }
+
+        .status { color: var(--bright-red); margin: 10px; font-size: 14px; }
+
+        .back-btn {
+            margin-top: 20px;
+            background: #ecf0f1;
+            border: none;
+            color: var(--dark-blue);
+            width: 100%;
+            padding: 12px;
+        }
     </style>
 </head>
 <body>
@@ -22,9 +101,9 @@
     
     <div class="btn-group">
         <button id="btn-addition" onclick="loadData('addition')">الجمع</button>
-        <button id="btn-minus" onclick="loadData('minus')">الطرح</button>
-        <button id="btn-multiplication" onclick="loadData('multiplication')">الضرب</button>
-        <button id="btn-division" onclick="loadData('division')">القسمة</button>
+        <button id="id-minus" onclick="loadData('minus')">الطرح</button>
+        <button id="id-multiplication" onclick="loadData('multiplication')">الضرب</button>
+        <button id="id-division" onclick="loadData('division')">القسمة</button>
     </div>
 
     <div id="status" class="status"></div>
@@ -32,16 +111,15 @@
     <table>
         <thead>
             <tr>
-                <th>المركز</th>
-                <th>الاسم</th>
+                <th>#</th>
+                <th>البطل</th>
                 <th>النقاط</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
     </table>
     
-    <br>
-    <button onclick="window.location.href='index.html'">رجوع للرئيسية</button>
+    <button class="back-btn" onclick="window.location.href='index.html'">العودة للرئيسية</button>
 </div>
 
 <script type="module">
@@ -65,12 +143,12 @@
         const tbody = document.getElementById("tableBody");
         const status = document.getElementById("status");
         
-        // تحديث شكل الزر النشط
+        // تحديث الأزرار (أزرق -> أحمر عند الضغط)
         document.querySelectorAll('.btn-group button').forEach(btn => btn.classList.remove('active'));
-        const activeBtn = document.getElementById('btn-' + mode);
-        if(activeBtn) activeBtn.classList.add('active');
+        // ملاحظة: استخدمنا selector مرن ليجد الزر المختار
+        event?.target?.classList?.add('active') || document.getElementById('btn-addition').classList.add('active');
 
-        status.innerText = "جاري جلب البيانات...";
+        status.innerText = "جاري البحث عن الأبطال...";
         tbody.innerHTML = "";
 
         const scoresRef = query(ref(db, 'leaderboard/' + mode), orderByChild("score"), limitToLast(10));
@@ -81,28 +159,25 @@
 
             if (snapshot.exists()) {
                 let data = [];
-                snapshot.forEach(child => {
-                    data.push(child.val());
-                });
+                snapshot.forEach(child => data.push(child.val()));
 
-                // ترتيب تنازلي
                 data.sort((a, b) => b.score - a.score).forEach((item, index) => {
+                    let rankClass = index === 0 ? 'rank-1' : '';
                     tbody.innerHTML += `
                         <tr>
-                            <td>${index + 1}</td>
+                            <td class="${rankClass}">${index + 1}</td>
                             <td>${item.name}</td>
                             <td>${item.score.toLocaleString()}</td>
                         </tr>`;
                 });
             } else {
-                status.innerText = "لا توجد بيانات حالياً.";
+                status.innerText = "لا توجد سجلات بعد.";
             }
         } catch (err) {
-            status.innerText = "خطأ في التحميل، تأكد من اتصال الإنترنت.";
+            status.innerText = "خطأ في الاتصال.";
         }
     }
 
-    // التحميل التلقائي لقسم الجمع عند فتح الصفحة
     window.onload = () => loadData('addition');
 </script>
 
